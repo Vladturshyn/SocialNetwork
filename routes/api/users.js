@@ -6,17 +6,19 @@ const bcrypt = require('bcrypt');
 // load user model
 const User = require('../../models/User');
 
+// test it now
 router.get('/test', (request,response)=>{
     response.json({ms:'user'})
 });
 
+//  register new user. add to db new user. hashing password bcrypto
 router.post('/register', (request, response) => {
     User.findOne({email: request.body.email})
         .then(user => {
             if(user){
                 response.status(400).json({email:'email already existed'})
             }else{
-                // use gravatar lyb
+                // use gravatar lyb. use email avatar
                 const avatar = gravatar.url(request.body.email, {
                     s:'200', // size
                     r: 'pg', // rating
@@ -28,6 +30,7 @@ router.post('/register', (request, response) => {
                     avatar: request.body.avatar,
                     email: request.body.email
                 })
+                // password hash use bcrypt
                 bcrypt.genSalt(10, (err,salt) => {
                     bcrypt.hash(newUser.password, salt, (err, hash)=>{
                         if (err) throw err;
@@ -41,4 +44,29 @@ router.post('/register', (request, response) => {
             }
         })
 })
+
+// log user & check password
+router.post('/login', (request, response) => {
+
+    const email = request.body.email;
+    const password = request.body.password;
+
+    //check user
+    User.findOne({email})
+        .then(user => {
+            if(!user){
+                response.status(404).json({email: "user not found"})
+            }
+            //check password
+            bcrypt.compare(password, user.password)
+                .then(isMatch =>{
+                    if(!isMatch){
+                        response.status(400).json({msg: 'password incorect'})
+                    }else{
+                        response.json({msg: 'sucsses'})
+                    }
+                })
+        })
+})
+
 module.exports = router;
