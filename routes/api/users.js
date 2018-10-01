@@ -1,15 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const gravatar = require('gravatar');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const passport = require('passport');
+const keys = require('../../config/keys');
 
 // load user model
 const User = require('../../models/User');
-
-// test it now
-router.get('/test', (request,response)=>{
-    response.json({ms:'user'})
-});
 
 //  register new user. add to db new user. hashing password bcrypto
 router.post('/register', (request, response) => {
@@ -43,7 +41,7 @@ router.post('/register', (request, response) => {
                 })
             }
         })
-})
+});
 
 // log user & check password
 router.post('/login', (request, response) => {
@@ -59,14 +57,35 @@ router.post('/login', (request, response) => {
             }
             //check password
             bcrypt.compare(password, user.password)
-                .then(isMatch =>{
-                    if(!isMatch){
-                        response.status(400).json({msg: 'password incorect'})
+                .then(isMatch => {
+                    if(isMatch){
+                        // User Matched
+                        // Create JWT Payload
+                        const payload = { id: user.id, name: user.name, avatar: user.avatar };
+                        // Sign TOKEN
+                        jwt.sign(
+                            payload,
+                            keys.secretOrKey,
+                            { expiresIn: 3600},
+                            (err, token) => {
+                                response.json({ succses: true, token: 'Bearer ' + token })
+                            });
                     }else{
-                        response.json({msg: 'sucsses'})
+                        return response.json({password: 'password is incorect'})
                     }
                 })
         })
-})
+});
+
+// access privat. current route
+router.get('/current', 
+    passport.authenticate('jwt', {session: false}),
+    (request, response) => {
+        response.json({
+            id: request.user.id,
+            name: request.user.name,
+            email: request.user.email
+        });
+});
 
 module.exports = router;
