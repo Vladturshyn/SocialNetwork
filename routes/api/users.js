@@ -6,15 +6,26 @@ const bcrypt = require('bcrypt');
 const passport = require('passport');
 const keys = require('../../config/keys');
 
-// load user model
+// Load input validation
+const validateRegisterInput = require('../../validation/register');
+
+// Load user model
 const User = require('../../models/User');
 
-//  register new user. add to db new user. hashing password bcrypto
+//  Register new user. add to db new user. hashing password bcrypto. validation
 router.post('/register', (request, response) => {
+    const {errors, isValid} = validateRegisterInput(request.body);
+
+    //Chack validation
+    if(!isValid){
+        return response.status(400).json(errors);
+    }
+
     User.findOne({email: request.body.email})
         .then(user => {
             if(user){
-                response.status(400).json({email:'email already existed'})
+                errors.email = "Email already exists";
+                response.status(400).json({errors})
             }else{
                 // use gravatar lyb. use email avatar
                 const avatar = gravatar.url(request.body.email, {
