@@ -8,6 +8,7 @@ const keys = require('../../config/keys');
 
 // Load input validation
 const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
 
 // Load user model
 const User = require('../../models/User');
@@ -54,17 +55,23 @@ router.post('/register', (request, response) => {
         })
 });
 
-// log user & check password
+// log user & check password. validation
 router.post('/login', (request, response) => {
+     //Chack validation
+    const {errors, isValid} = validateLoginInput(request.body);
+
+    if(!isValid){
+        return response.status(400).json(errors);
+    }
 
     const email = request.body.email;
     const password = request.body.password;
-
     //check user
     User.findOne({email})
         .then(user => {
+            errors.email = "User not found";
             if(!user){
-                response.status(404).json({email: "user not found"})
+                response.status(404).json(errors);
             }
             //check password
             bcrypt.compare(password, user.password)
@@ -82,10 +89,11 @@ router.post('/login', (request, response) => {
                                 response.json({ succses: true, token: 'Bearer ' + token })
                             });
                     }else{
-                        return response.json({password: 'password is incorect'})
+                        // errors.password = "Password incorrect";
+                        response.status(404).json({password: "Password incorrect"});
                     }
-                })
-        })
+                }).catch(err => console.log(err));
+        });
 });
 
 // access privat. current route
