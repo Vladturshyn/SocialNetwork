@@ -22,33 +22,32 @@ router.post('/register', (request, response) => {
         return response.status(400).json(errors);
     }
 
-    User.findOne({email: request.body.email})
-        .then(user => {
-            if(user){
-                errors.email = "Email already exists";
-                response.status(400).json({errors})
-            }else{
-                // use gravatar lyb. use email avatar
-                const avatar = gravatar.url(request.body.email, {
-                    s:'200', // size
-                    r: 'pg', // rating
-                    d: 'mm'  // default v
-                })
-                const newUser = new User({
-                    name: request.body.name,
-                    password: request.body.password,
-                    avatar: request.body.avatar,
-                    email: request.body.email
-                })
-                // password hash use bcrypt
-                bcrypt.genSalt(10, (err,salt) => {
-                    bcrypt.hash(newUser.password, salt, (err, hash)=>{
-                        if (err) throw err;
-                        newUser.password = hash;
-                        newUser
-                            .save()
-                            .then(user => response.json(user))
-                            .catch(err => console.log(err))
+    User.findOne({email: request.body.email}).then(user => {
+        if(user) {
+            errors.email = "Email already exists";
+            response.status(400).json({errors})
+        }else {
+            // use gravatar lyb. use email avatar
+            const avatar = gravatar.url(request.body.email, {
+                s:'200', // size
+                r: 'pg', // rating
+                d: 'mm'  // default v
+            })
+            const newUser = new User({
+                name: request.body.name,
+                password: request.body.password,
+                avatar: request.body.avatar,
+                email: request.body.email
+            })
+            // password hash use bcrypt
+            bcrypt.genSalt(10, (err,salt) => {
+                bcrypt.hash(newUser.password, salt, (err, hash)=>{
+                    if (err) throw err;
+                    newUser.password = hash;
+                    newUser
+                        .save()
+                        .then(user => response.json(user))
+                        .catch(err => console.log(err))
                     })
                 })
             }
