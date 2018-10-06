@@ -5,10 +5,20 @@ const passport = require('passport');
 
 // Load validation profile
 const validateProfileInput = require('../../validation/profile');
+
+// Load experience validation
+const validateExperienceInput = require('../../validation/experience');
+
+// Load education validation
+const validateEducationInput = require('../../validation/education');
+
 // Load Profile models
 const Profile = require('../../models/Profile');
+
 // Load User Profile models
 const User = require('../../models/User');
+
+
 router.get('/', 
     passport.authenticate('jwt', { session: false } ), 
     (request, response) => {
@@ -24,6 +34,52 @@ router.get('/',
                 }
             }).catch(err => response.status(404).json(errors));
 });
+
+// create public route to profile by handle
+router.get('/handle/:handle', (request,response) => {
+    const errors = {};
+    Profile.findOne({ handle: request.params.handle})
+        .populate('user', ['name','avatar'])
+        .then(profile =>{
+            if(!profile){
+                errors.noprofile = 'There is no profile for this user';
+                response.status(404).json(errors);   
+            }
+            response.json(profile);
+        })
+        .catch(err => response.status(404).json(err));
+});
+
+// create public route to profile by user.id
+router.get('/user/:user_id', (request,response) => {
+    const errors = {};
+    Profile.findOne({ user: request.params.user_id})
+        .populate('user', ['name','avatar'])
+        .then(profile =>{
+            if(!profile){
+                errors.noprofile = 'There is no profile for this user';
+                response.status(404).json(errors);   
+            }
+            response.json(profile);
+        })
+        .catch(err => response.status(404).json({profile: 'There is no profile for this user'}));
+});
+
+// create public route to all profiles
+router.get('/all', (request,response) => {
+    const errors = {};
+    Profile.find()
+        .populate('user', ['name','avatar'])
+        .then(profiles =>{
+            if(!profiles){
+                errors.noprofiles = 'There is no profiles';
+                response.status(404).json(errors);   
+            }
+            response.json(profiles);
+        })
+        .catch(err => response.status(404).json({profiles: 'There is no profile for this user'}));
+});
+
 // create user profile
 router.post('/', 
     passport.authenticate('jwt', { session: false } ),
@@ -78,5 +134,65 @@ router.post('/',
                 });
             }
         });
-})
+});
+
+// add experience to profile. privat route
+router.post('/experience', 
+    passport.authenticate('jwt',{session: false}),
+    (request,response)=>{
+
+        const {errors, isValid} = validateExperienceInput(request.body);
+
+        if(!isValid){
+            return response.status(400).json(errors);
+        }
+
+        Profile.findOne({user: request.user.id})
+            .then(profile=>{
+                console.log(profile);
+                const newExperience = {
+                    title: request.body.title,
+                    location: request.body.location,
+                    company: request.body.company,
+                    from: request.body.from,
+                    to: request.body.to,
+                    current: request.body.current,
+                    description: request.body.description,
+                };
+                // Add to experiens arr
+                profile.experience.unshift(newExperience);
+                profile.save().then(profile => response.json(profile));
+
+            }).catch(err => response.status(404).json(err));
+});
+
+// add education to profile. private route
+router.post('/education', 
+    passport.authenticate('jwt',{session: false}),
+    (request,response)=>{
+
+        const {errors, isValid} = validateEducationInput(request.body);
+
+        if(!isValid){
+            return response.status(400).json(errors);
+        }
+
+        Profile.findOne({user: request.user.id})
+            .then(profile=>{
+                console.log(profile);
+                const newEducation = {
+                    school: request.body.school,
+                    degree: request.body.degree,
+                    fieldofstudy: request.body.fieldofstudy,
+                    from: request.body.from,
+                    to: request.body.to,
+                    current: request.body.current,
+                    description: request.body.description
+                };
+                // Add to experiens arr
+                profile.education.unshift(newEducation);
+                profile.save().then(profile => response.json(profile));
+
+            }).catch(err => response.status(404).json(err));
+});
 module.exports = router;
