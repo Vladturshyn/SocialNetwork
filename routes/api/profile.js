@@ -15,10 +15,10 @@ const validateEducationInput = require('../../validation/education');
 // Load Profile models
 const Profile = require('../../models/Profile');
 
-// Load User Profile models
+// Load User models
 const User = require('../../models/User');
 
-
+// create private route to profile
 router.get('/', 
     passport.authenticate('jwt', { session: false } ), 
     (request, response) => {
@@ -191,8 +191,63 @@ router.post('/education',
                 };
                 // Add to experiens arr
                 profile.education.unshift(newEducation);
+
                 profile.save().then(profile => response.json(profile));
 
             }).catch(err => response.status(404).json(err));
 });
+
+// delete education 
+router.delete('/education/:edu_id', 
+    passport.authenticate('jwt',{session: false}),
+    (request,response)=>{
+
+        Profile.findOne({user: request.user.id})
+            .then(profile=>{
+                console.log(profile)
+                const removeIndex = profile.experience
+                    .map(item => item.id)
+                    .indexOf(request.params.edu_id);
+                console.log(removeIndex);
+
+            // delete from array
+            profile.experience.splise(removeIndex, 1);
+            // save
+            profile.save().then(profile => response.json(profile));
+
+            }).catch(err => response.status(404).json(err));
+});
+
+// delete experience
+router.delete('/experience/:exp_id', 
+    passport.authenticate('jwt',{session: false}),
+    (request,response)=>{
+
+        Profile.findOne({user: request.body.id})
+            .then(profile=>{
+                const removeIndex = profile.education
+                    .map(item => item.id)
+                    .indexOf(request.params.exp_id)
+                // delete from array
+                profile.experience.splise(removeIndex, 1);
+                // save
+                profile.save().then(profile => response.json(profile));
+
+            }).catch(err => response.status(404).json(err));
+});
+// delete profile & user
+router.delete('/',
+    passport.authenticate('jwt',{session: false}),
+        (request,response)=>{
+            Profile.findOneAndRemove({user: request.user.id})
+                .then(()=>{
+                    User.findOneAndRemove({_id: request.user.id})
+                        .then(()=>{
+                            response.json({success: true});
+                        })
+                })
+        })
+
+
+
 module.exports = router;
