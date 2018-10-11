@@ -204,7 +204,6 @@ router.delete('/education/:edu_id',
 
         Profile.findOne({user: request.user.id})
             .then(profile=>{
-                console.log(profile)
                 const removeIndex = profile.experience
                     .map(item => item.id)
                     .indexOf(request.params.edu_id);

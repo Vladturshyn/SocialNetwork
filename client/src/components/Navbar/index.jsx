@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import './style.scss';
 
 export default class Navbar extends Component {
@@ -9,10 +10,10 @@ export default class Navbar extends Component {
             <nav>
                 <ul>
                     <li>
-                        <a href="/">DevConnector</a>
+                        <Link to="/">DevConnector</Link>
                     </li>
                     <li>
-                        <a href="/">Developers</a>
+                        <Link to="/profiles">Developers</Link>
                     </li>
                 </ul>
             </nav>
@@ -21,10 +22,10 @@ export default class Navbar extends Component {
             <nav>
                 <ul>
                     <li>
-                        <a href="/">sign up</a>
+                        <Link to="/register">sign up</Link>
                     </li>
                     <li>
-                        <a href="/">login</a>
+                        <Link to="/login">login</Link>
                     </li>
                 </ul>
             </nav>
