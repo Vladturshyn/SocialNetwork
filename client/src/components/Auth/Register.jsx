@@ -26,10 +26,11 @@ export default class Reginster extends Component {
     axios
       .post('/api/users/register', newUser)
       .then(res => console.log(res.data))
-      .catch(err => console.log(err.response.data));
+      .catch(err => this.setState({errors: err.response.data}));
   };
 
   render() {
+    // const {errors} = this.state;
     return (
       <div>
         <h1>Sign Up</h1>
