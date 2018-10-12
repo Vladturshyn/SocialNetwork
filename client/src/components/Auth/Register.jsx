@@ -1,7 +1,10 @@
-import React, { Component } from 'react'
-import axios from 'axios';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import {withRouter} from 'react-router-dom';
+import {connect} from 'react-redux';
+import {registerUser} from '../../actions/registerActions';
 
-export default class Reginster extends Component {
+class Reginster extends Component {
     state = {
       name:'',
       email:'',
@@ -15,6 +18,14 @@ export default class Reginster extends Component {
     })
   };
 
+  componentWillReceiveProps = (nextProps) =>{
+    if(nextProps.errors){
+      this.setState({
+        errors: nextProps.errors
+      });
+    }
+  }
+
   onSubmit = (e) =>{
     e.preventDefault();
     const newUser = {
@@ -23,10 +34,8 @@ export default class Reginster extends Component {
       password: this.state.password,
       password2: this.state.password2
     };
-    axios
-      .post('/api/users/register', newUser)
-      .then(res => console.log(res.data))
-      .catch(err => this.setState({errors: err.response.data}));
+
+    this.props.registerUser(newUser, this.props.history);
   };
 
   render() {
@@ -72,3 +81,14 @@ export default class Reginster extends Component {
     )
   }
 }
+
+Reginster.propTypes = {
+  registerUser: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired
+};
+
+const mapStateToProps = (state) => ({
+  errors: state.errors
+});
+
+export default connect(mapStateToProps,{registerUser})(withRouter(Reginster));
