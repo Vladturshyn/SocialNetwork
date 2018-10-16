@@ -2,7 +2,7 @@ const gravatar = require('gravatar');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const keys = require('../config/keys');
-
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
 // Load Registration input validation
