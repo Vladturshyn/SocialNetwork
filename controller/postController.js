@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 // Post model
 const Post = require('../models/Post');
 // Profile model
@@ -45,7 +46,7 @@ postController.deletePostById = (request,response) => {
                         return response.status(401).json({noauth: 'User not authrorize'});
                     }
                     // Delete
-                    Post.remove().then(()=> response.json({success: true}))
+                    post.remove().then(()=> response.json({success: true}))
                 })
                 .catch(err => response.status(404).json({postnotFound: 'Post not found'}));
         })
