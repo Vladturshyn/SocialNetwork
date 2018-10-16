@@ -31,12 +31,12 @@ educationController.addEducation = (request,response)=>{
 educationController.deleteEducation = (request,response)=>{
     Profile.findOne({user: request.user.id})
         .then(profile=>{
-            const removeIndex = profile.experience
+            const removeIndex = profile.education
                 .map(item => item.id)
                 .indexOf(request.params.edu_id);
 
         // delete from array
-        profile.experience.splise(removeIndex, 1);
+        profile.education.splice(removeIndex, 1);
         // save
         profile.save().then(profile => response.json(profile));
         }).catch(err => response.status(404).json(err));

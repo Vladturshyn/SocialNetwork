@@ -30,17 +30,17 @@ experienceController.addExp = (request,response) =>{
 };
 
 experienceController.deleteExp = (request,response) =>{
-    Profile.findOne({user: request.body.id})
+    Profile.findOne({user: request.user.id})
         .then(profile =>{
-            const removeIndex = profile.education
+            const removeIndex = profile.experience
                 .map(item => item.id)
                 .indexOf(request.params.exp_id)
             // Delete from array
-            profile.experience.splise(removeIndex, 1);
+            profile.experience.splice(removeIndex, 1);
             // Save
             profile.save().then(profile => response.json(profile));
+
         }).catch(err => response.status(404).json(err));
 };
-
 
 module.exports = experienceController;
