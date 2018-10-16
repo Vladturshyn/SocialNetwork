@@ -9,6 +9,7 @@ const profile = require('./routes/api/profile');
 const like = require('./routes/api/postsLike');
 const comment = require('./routes/api/postsComment');
 const experience = require('./routes/api/profileExperience');
+const education = require('./routes/api/profileEducation');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/posts', posts);
 app.use('/api/posts', like);
 app.use('/api/posts/comment', comment);
 app.use('/api/profile/experience', experience);
+app.use('/api/profile/education', education);
 
 
 const port = process.env.PORT || 5000;

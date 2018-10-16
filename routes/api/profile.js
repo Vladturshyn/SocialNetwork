@@ -6,12 +6,6 @@ const passport = require('passport');
 // Load validation profile
 const validateProfileInput = require('../../validation/profile');
 
-// Load experience validation
-const validateExperienceInput = require('../../validation/experience');
-
-// Load education validation
-const validateEducationInput = require('../../validation/education');
-
 // Load Profile models
 const Profile = require('../../models/Profile');
 
@@ -136,104 +130,6 @@ router.post('/',
         });
 });
 
-// add experience to profile. privat route
-router.post('/experience', 
-    passport.authenticate('jwt',{session: false}),
-    (request,response)=>{
-
-        const {errors, isValid} = validateExperienceInput(request.body);
-
-        if(!isValid){
-            return response.status(400).json(errors);
-        }
-
-        Profile.findOne({user: request.user.id})
-            .then(profile=>{
-                console.log(profile);
-                const newExperience = {
-                    title: request.body.title,
-                    location: request.body.location,
-                    company: request.body.company,
-                    from: request.body.from,
-                    to: request.body.to,
-                    current: request.body.current,
-                    description: request.body.description,
-                };
-                // Add to experiens arr
-                profile.experience.unshift(newExperience);
-                profile.save().then(profile => response.json(profile));
-
-            }).catch(err => response.status(404).json(err));
-});
-
-// add education to profile. private route
-router.post('/education', 
-    passport.authenticate('jwt',{session: false}),
-    (request,response)=>{
-
-        const {errors, isValid} = validateEducationInput(request.body);
-
-        if(!isValid){
-            return response.status(400).json(errors);
-        }
-
-        Profile.findOne({user: request.user.id})
-            .then(profile=>{
-                console.log(profile);
-                const newEducation = {
-                    school: request.body.school,
-                    degree: request.body.degree,
-                    fieldofstudy: request.body.fieldofstudy,
-                    from: request.body.from,
-                    to: request.body.to,
-                    current: request.body.current,
-                    description: request.body.description
-                };
-                // Add to experiens arr
-                profile.education.unshift(newEducation);
-
-                profile.save().then(profile => response.json(profile));
-
-            }).catch(err => response.status(404).json(err));
-});
-
-// delete education 
-router.delete('/education/:edu_id', 
-    passport.authenticate('jwt',{session: false}),
-    (request,response)=>{
-
-        Profile.findOne({user: request.user.id})
-            .then(profile=>{
-                const removeIndex = profile.experience
-                    .map(item => item.id)
-                    .indexOf(request.params.edu_id);
-                console.log(removeIndex);
-
-            // delete from array
-            profile.experience.splise(removeIndex, 1);
-            // save
-            profile.save().then(profile => response.json(profile));
-
-            }).catch(err => response.status(404).json(err));
-});
-
-// delete experience
-router.delete('/experience/:exp_id', 
-    passport.authenticate('jwt',{session: false}),
-    (request,response)=>{
-
-        Profile.findOne({user: request.body.id})
-            .then(profile=>{
-                const removeIndex = profile.education
-                    .map(item => item.id)
-                    .indexOf(request.params.exp_id)
-                // delete from array
-                profile.experience.splise(removeIndex, 1);
-                // save
-                profile.save().then(profile => response.json(profile));
-
-            }).catch(err => response.status(404).json(err));
-});
 // delete profile & user
 router.delete('/',
     passport.authenticate('jwt',{session: false}),
