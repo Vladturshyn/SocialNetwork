@@ -5,11 +5,6 @@ const passport = require('passport');
 
 const likeController = require('../../controller/likeController');
 
-// Post model
-const Post = require('../../models/Post');
-// Profile model
-const Profile = require('../../models/Profile');
-
 // Private route. Like the posts
 router.post('/like/:id',passport.authenticate('jwt',{session: false}), likeController.likePost);
 

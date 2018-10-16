@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 // Post model
 const Post = require('../models/Post');
 // Profile model
