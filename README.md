@@ -1,5 +1,6 @@
 # SocialNetwork
 MERN Stack
 - Node.js > Express
-- React/Redux
-- db > MongoDB > mongoose
+- MongoDB > mongoose
+- bcryptjs > password hashing
+- jwt strategy > passport.js
